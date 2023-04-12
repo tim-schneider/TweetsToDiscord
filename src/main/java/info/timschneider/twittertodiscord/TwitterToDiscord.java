@@ -50,6 +50,8 @@ public class TwitterToDiscord {
 
     public void subscribeStream(TwitterClient twitterClient, String webhookURL){
         twitterClient.startFilteredStream(tweet -> {
+            if(tweet.getUser() == null)
+                return;
             if(tweet.getMedia() == null) {
                 sendWebHookMessage(webhookURL,
                         tweet.getText(),
