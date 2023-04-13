@@ -5,6 +5,7 @@ import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import io.github.redouane59.twitter.TwitterClient;
+import io.github.redouane59.twitter.dto.tweet.Tweet;
 import io.github.redouane59.twitter.signature.TwitterCredentials;
 
 import java.time.Clock;
@@ -49,30 +50,32 @@ public class TwitterToDiscord {
     }
 
     public void subscribeStream(TwitterClient twitterClient, String webhookURL){
-        twitterClient.startFilteredStream(tweet -> {
-            if(tweet.getUser() == null)
-                return;
-            if(tweet.getMedia() == null) {
-                sendWebHookMessage(webhookURL,
-                        tweet.getText(),
-                        tweet.getUser().getName(),
-                        tweet.getUser().getDisplayedName(),
-                        tweet.getUser().getProfileImageUrl(),
-                        tweet.getUser().getUrl(),
-                        "https://twitter.com/"+tweet.getUser().getName()+"/status/"+tweet.getId(),
-                        null);
-            }else {
-                sendWebHookMessage(webhookURL,
-                        tweet.getText(),
-                        tweet.getUser().getName(),
-                        tweet.getUser().getDisplayedName(),
-                        tweet.getUser().getProfileImageUrl(),
-                        tweet.getUser().getUrl(),
-                        "https://twitter.com/"+tweet.getUser().getName()+"/status/"+tweet.getId(),
-                        tweet.getMedia().get(0).getMediaUrl());
+        twitterClient.startFilteredStream(event -> {
+            if(event instanceof Tweet){
+                Tweet tweet = (Tweet) event;
+                if(tweet.getUser() != null){
+                    if(tweet.getMedia() == null) {
+                        sendWebHookMessage(webhookURL,
+                                tweet.getText(),
+                                tweet.getUser().getName(),
+                                tweet.getUser().getDisplayedName(),
+                                tweet.getUser().getProfileImageUrl(),
+                                tweet.getUser().getUrl(),
+                                "https://twitter.com/"+tweet.getUser().getName()+"/status/"+tweet.getId(),
+                                null);
+                    }else {
+                        sendWebHookMessage(webhookURL,
+                                tweet.getText(),
+                                tweet.getUser().getName(),
+                                tweet.getUser().getDisplayedName(),
+                                tweet.getUser().getProfileImageUrl(),
+                                tweet.getUser().getUrl(),
+                                "https://twitter.com/"+tweet.getUser().getName()+"/status/"+tweet.getId(),
+                                tweet.getMedia().get(0).getMediaUrl());
+                    }
+                    Logger.getLogger("TweetsToDiscord").info("Tweet found! " + "https://twitter.com/"+tweet.getUser().getName()+"/status/"+tweet.getId());
+                }
             }
-            Logger.getLogger("TweetsToDiscord").info("Tweet found! " + "https://twitter.com/"+tweet.getUser().getName()+"/status/"+tweet.getId());
-
         });
     }
 
