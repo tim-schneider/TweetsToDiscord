@@ -1,4 +1,6 @@
 FROM eclipse-temurin:19-jre
+
+COPY target/*.jar /opt/app/
 WORKDIR /opt/app/
 
 RUN useradd -r -s /bin/false tweetstodiscord
